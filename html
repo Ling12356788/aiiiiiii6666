@@ -1,130 +1,211 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>神奇小算盤</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朵朵小算盤</title>
     <style>
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
         }
 
         .button {
-            width: 120px;
-            height: 120px;
-            margin: 10px;
+            width: 80px;
+            height: 80px;
+            margin: 5px;
             border: none;
             border-radius: 15px;
-            font-size: 20px;
+            font-size: 16px;
             color: white;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         .button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
         }
 
-        .blue { background-color: #4a90e2; }
-        .red { background-color: #e74c3c; }
-        .green { background-color: #2ecc71; }
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .blue { 
+            background-color: rgba(74, 144, 226, 0.8);
+            border: 1px solid #4a90e2;
+        }
+        .red { 
+            background-color: rgba(231, 76, 60, 0.8);
+            border: 1px solid #e74c3c;
+        }
+        .green { 
+            background-color: rgba(46, 204, 113, 0.8);
+            border: 1px solid #2ecc71;
+        }
 
         #stats {
-            background-color: white;
-            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            margin: 15px 0;
+            font-size: 14px;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        #reset, #delete {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 5px;
+            color: white;
+            backdrop-filter: blur(5px);
         }
 
         #reset {
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #34495e;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: rgba(52, 73, 94, 0.8);
+            border: 1px solid #34495e;
         }
 
         #reset:hover {
-            background-color: #2c3e50;
+            background-color: rgba(44, 62, 80, 0.8);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         }
 
         #delete {
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: rgba(255, 107, 107, 0.8);
+            border: 1px solid #ff6b6b;
         }
 
         #delete:hover {
-            background-color: #ff5252;
+            background-color: rgba(255, 82, 82, 0.8);
+            box-shadow: 0 0 15px rgba(255, 82, 82, 0.3);
         }
 
         #history-display {
-            background-color: white;
-            margin: 20px 0;
-            padding: 15px;
-            border: none;
+            background-color: rgba(0, 0, 0, 0.7);
+            margin: 15px 0;
+            padding: 10px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
             display: grid;
             grid-template-columns: repeat(10, auto);
             grid-template-rows: repeat(6, auto);
-            gap: 8px;
+            gap: 4px;
+            justify-content: center;
+            border: 1px solid #00ff00;
         }
 
         .history-dot {
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             margin: 0;
             transition: transform 0.2s;
         }
 
         .history-cell {
-            width: 25px;
-            height: 25px;
-            border: 2px solid #eee;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff00;
             border-radius: 50%;
         }
 
         h1 {
-            color: #2c3e50;
+            color: #00ff00;
             text-align: center;
-            margin-bottom: 30px;
+            margin: 15px 0;
+            font-size: 24px;
+            text-shadow: 0 0 10px #00ff00;
         }
 
         .container {
             text-align: center;
         }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        @media screen and (max-width: 480px) {
+            .button {
+                width: 60px;
+                height: 60px;
+                font-size: 14px;
+                margin: 3px;
+            }
+
+            #delete, #reset {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            #stats {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .history-dot, .history-cell {
+                width: 15px;
+                height: 15px;
+            }
+        }
+
+        @media screen and (max-width: 320px) {
+            .button {
+                width: 50px;
+                height: 50px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>顏色預測遊戲</h1>
+    <canvas id="matrix"></canvas>
+    <h1>百家樂</h1>
     <div class="container">
-        <div>
+        <div class="button-group">
             <button class="button blue" onclick="selectColor('blue')">閒</button>
             <button class="button red" onclick="selectColor('red')">莊</button>
             <button class="button green" onclick="selectColor('green')">和</button>
+        </div>
+        <div class="button-group">
             <button id="delete" onclick="deleteLastRecord()">刪除上一步</button>
+            <button id="reset" onclick="resetGame()">重置遊戲</button>
         </div>
         <div id="stats">
             <p>已進行回合: <span id="rounds">0</span>/60</p>
-            <p>下一局預測: <span id="prediction" style="font-size: 24px; font-weight: bold;"></span></p>
-            <p>最近5局趨勢: <span id="recentTrend"></span></p>
+            <p>下一次預測:</p>
+            <p><span id="prediction"></span></p>
         </div>
-        <button id="reset" onclick="resetGame()">重置遊戲</button>
 
         <div>
             <p>歷史紀錄：</p>
@@ -133,6 +214,7 @@
     </div>
 
     <script>
+        // 遊戲邏輯
         let history = [];
         let rounds = 0;
         const MAX_ROUNDS = 60;
@@ -163,108 +245,78 @@
         function updateStats() {
             document.getElementById('rounds').textContent = rounds;
             
-            // 計算基本統計
             let blueCount = history.filter(c => c === 'blue').length;
             let redCount = history.filter(c => c === 'red').length;
             let greenCount = history.filter(c => c === 'green').length;
             
-            // 計算百分比
-            let blueProb = rounds === 0 ? 33.3 : Math.round((blueCount / rounds) * 100);
-            let redProb = rounds === 0 ? 33.3 : Math.round((redCount / rounds) * 100);
-            let greenProb = rounds === 0 ? 33.3 : Math.round((greenCount / rounds) * 100);
-
-            // 計算連續次數
-            let blueStreak = 0;
-            let redStreak = 0;
-            for (let i = history.length - 1; i >= 0; i--) {
-                if (history[i] === 'blue') blueStreak++;
-                else break;
-            }
-            for (let i = history.length - 1; i >= 0; i--) {
-                if (history[i] === 'red') redStreak++;
-                else break;
-            }
-
-            // 顯示最近5局趨勢
-            let recentTrend = history.slice(-5).map(color => {
-                if (color === 'blue') return '閒';
-                if (color === 'red') return '莊';
-                return '和';
-            }).join(' → ');
-
-            // 計算基礎機率
-            const baseBlueProb = 44.5;  // 閒家基礎機率
-            const baseRedProb = 45.5;   // 莊家基礎機率
-            const baseGreenProb = 10.0; // 和局基礎機率
-
-            // 計算趨勢指標（每次都會變化）
-            let adjustedBlueProb = baseBlueProb;
-            let adjustedRedProb = baseRedProb;
-            let adjustedGreenProb = baseGreenProb;
-
-            // 根據最後一次結果調整
-            if (history.length > 0) {
-                const lastResult = history[history.length - 1];
-                const adjustmentFactor = 5; // 每次調整的基本幅度
-
-                if (lastResult === 'blue') {
-                    // 如果上一次是閒
-                    adjustedBlueProb = Math.max(baseBlueProb - (adjustmentFactor * (blueStreak + 1)), 25);
-                    adjustedRedProb = Math.min(baseRedProb + (adjustmentFactor * (blueStreak + 1)), 65);
-                    adjustedGreenProb = Math.min(baseGreenProb + (blueStreak), 15);
-                } else if (lastResult === 'red') {
-                    // 如果上一次是莊
-                    adjustedRedProb = Math.max(baseRedProb - (adjustmentFactor * (redStreak + 1)), 25);
-                    adjustedBlueProb = Math.min(baseBlueProb + (adjustmentFactor * (redStreak + 1)), 65);
-                    adjustedGreenProb = Math.min(baseGreenProb + (redStreak), 15);
+            // 計算連續出現的次數
+            let currentStreak = 1;
+            let lastColor = history[history.length - 1];
+            for (let i = history.length - 2; i >= 0; i--) {
+                if (history[i] === lastColor) {
+                    currentStreak++;
                 } else {
-                    // 如果上一次是和
-                    adjustedGreenProb = Math.max(baseGreenProb - 2, 5);
-                    adjustedBlueProb = baseBlueProb + 1;
-                    adjustedRedProb = baseRedProb + 1;
+                    break;
                 }
             }
 
-            // 確保三個機率的總和為100%
-            const total = adjustedBlueProb + adjustedRedProb + adjustedGreenProb;
-            adjustedBlueProb = (adjustedBlueProb / total) * 100;
-            adjustedRedProb = (adjustedRedProb / total) * 100;
-            adjustedGreenProb = (adjustedGreenProb / total) * 100;
+            // 分析最近6局的趨勢
+            let recentGames = history.slice(-6);
+            let recentBlue = recentGames.filter(c => c === 'blue').length;
+            let recentRed = recentGames.filter(c => c === 'red').length;
 
-            // 找出機率最高的選項
+            // 預測邏輯
             let prediction = '';
-            if (adjustedBlueProb > adjustedRedProb && adjustedBlueProb > adjustedGreenProb) {
-                prediction = '閒';
-            } else if (adjustedRedProb > adjustedBlueProb && adjustedRedProb > adjustedGreenProb) {
-                prediction = '莊';
+            if (rounds === 0) {
+                prediction = '請選擇 莊/閒';
             } else {
-                prediction = '和';
+                // 如果連續出現同一個結果超過3次
+                if (currentStreak >= 3) {
+                    prediction = lastColor === 'red' ? '閒' : '莊';
+                } 
+                // 如果最近6局某一方出現次數特別多（超過4次）
+                else if (recentBlue >= 4) {
+                    prediction = '莊';
+                } else if (recentRed >= 4) {
+                    prediction = '閒';
+                }
+                // 根據整體比例來判斷
+                else {
+                    let totalCount = blueCount + redCount;
+                    let blueRatio = blueCount / totalCount;
+                    let redRatio = redCount / totalCount;
+                    
+                    // 如果某一方的比例明顯偏高（超過55%）
+                    if (blueRatio > 0.55) {
+                        prediction = '莊';
+                    } else if (redRatio > 0.55) {
+                        prediction = '閒';
+                    } else {
+                        // 接近平衡時，考慮最近一次的結果
+                        prediction = lastColor === 'red' ? '閒' : '莊';
+                    }
+                }
             }
-
-            // 更新顯示
+            
             document.getElementById('prediction').textContent = prediction;
 
-            // 強化警告訊息
-            let warningMsg = '⚠️ 重要提醒：\n' +
-                '1. 上方數據僅供參考，不代表真實機率\n' +
-                '2. 每一局都是獨立事件，實際機率維持不變\n' +
-                '3. 這些變化僅是參考指標，不能預測下一局結果';
-
-            // 更新歷史紀錄顯示（保持直豎順序）
             const historyDisplay = document.getElementById('history-display');
             historyDisplay.innerHTML = '';
             
-            for (let row = 0; row < 6; row++) {
-                for (let col = 0; col < 10; col++) {
-                    const index = col * 6 + row;
-                    const cell = document.createElement('div');
-                    if (index < history.length) {
-                        cell.className = `history-dot ${history[index]}`;
-                    } else {
-                        cell.className = 'history-cell';
-                    }
-                    historyDisplay.appendChild(cell);
+            for (let i = 0; i < 60; i++) {
+                const cell = document.createElement('div');
+                const column = Math.floor(i / 6); // 每6個換一列
+                const row = i % 6;                // 在每列中的位置
+                
+                cell.style.gridRow = (row + 1).toString();
+                cell.style.gridColumn = (column + 1).toString();
+                
+                if (i < history.length) {
+                    cell.className = `history-dot ${history[i]}`;
+                } else {
+                    cell.className = 'history-cell';
                 }
+                historyDisplay.appendChild(cell);
             }
         }
 
@@ -273,6 +325,51 @@
             rounds = 0;
             updateStats();
         }
+
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = canvas.width/fontSize;
+
+        const rainDrops = Array(Math.floor(columns)).fill(1);
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i*fontSize, rainDrops[i]*fontSize);
+
+                if(rainDrops[i]*fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        setInterval(draw, 30);
+
+        // 初始化遊戲
+        updateStats();
     </script>
 </body>
 </html>
