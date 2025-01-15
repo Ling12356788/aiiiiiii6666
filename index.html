@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>神奇小算盤</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .button {
+            width: 120px;
+            height: 120px;
+            margin: 10px;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .blue { background-color: #4a90e2; }
+        .red { background-color: #e74c3c; }
+        .green { background-color: #2ecc71; }
+
+        #stats {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        #reset {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #reset:hover {
+            background-color: #2c3e50;
+        }
+
+        #delete {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #delete:hover {
+            background-color: #ff5252;
+        }
+
+        #history-display {
+            background-color: white;
+            margin: 20px 0;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(10, auto);
+            grid-template-rows: repeat(6, auto);
+            gap: 8px;
+        }
+
+        .history-dot {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin: 0;
+            transition: transform 0.2s;
+        }
+
+        .history-cell {
+            width: 25px;
+            height: 25px;
+            border: 2px solid #eee;
+            border-radius: 50%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>顏色預測遊戲</h1>
+    <div class="container">
+        <div>
+            <button class="button blue" onclick="selectColor('blue')">閒</button>
+            <button class="button red" onclick="selectColor('red')">莊</button>
+            <button class="button green" onclick="selectColor('green')">和</button>
+            <button id="delete" onclick="deleteLastRecord()">刪除上一步</button>
+        </div>
+        <div id="stats">
+            <p>已進行回合: <span id="rounds">0</span>/60</p>
+            <p>下一局預測: <span id="prediction" style="font-size: 24px; font-weight: bold;"></span></p>
+            <p>最近5局趨勢: <span id="recentTrend"></span></p>
+        </div>
+        <button id="reset" onclick="resetGame()">重置遊戲</button>
+
+        <div>
+            <p>歷史紀錄：</p>
+            <div id="history-display"></div>
+        </div>
+    </div>
+
+    <script>
+        let history = [];
+        let rounds = 0;
+        const MAX_ROUNDS = 60;
+
+        function selectColor(color) {
+            if (rounds >= MAX_ROUNDS) {
+                alert('遊戲已結束！請重置開始新遊戲。');
+                return;
+            }
+
+            history.push(color);
+            rounds++;
+            updateStats();
+
+            if (rounds >= MAX_ROUNDS) {
+                alert('遊戲結束！');
+            }
+        }
+
+        function deleteLastRecord() {
+            if (history.length > 0) {
+                history.pop();
+                rounds--;
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('rounds').textContent = rounds;
+            
+            // 計算基本統計
+            let blueCount = history.filter(c => c === 'blue').length;
+            let redCount = history.filter(c => c === 'red').length;
+            let greenCount = history.filter(c => c === 'green').length;
+            
+            // 計算百分比
+            let blueProb = rounds === 0 ? 33.3 : Math.round((blueCount / rounds) * 100);
+            let redProb = rounds === 0 ? 33.3 : Math.round((redCount / rounds) * 100);
+            let greenProb = rounds === 0 ? 33.3 : Math.round((greenCount / rounds) * 100);
+
+            // 計算連續次數
+            let blueStreak = 0;
+            let redStreak = 0;
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (history[i] === 'blue') blueStreak++;
+                else break;
+            }
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (history[i] === 'red') redStreak++;
+                else break;
+            }
+
+            // 顯示最近5局趨勢
+            let recentTrend = history.slice(-5).map(color => {
+                if (color === 'blue') return '閒';
+                if (color === 'red') return '莊';
+                return '和';
+            }).join(' → ');
+
+            // 計算基礎機率
+            const baseBlueProb = 44.5;  // 閒家基礎機率
+            const baseRedProb = 45.5;   // 莊家基礎機率
+            const baseGreenProb = 10.0; // 和局基礎機率
+
+            // 計算趨勢指標（每次都會變化）
+            let adjustedBlueProb = baseBlueProb;
+            let adjustedRedProb = baseRedProb;
+            let adjustedGreenProb = baseGreenProb;
+
+            // 根據最後一次結果調整
+            if (history.length > 0) {
+                const lastResult = history[history.length - 1];
+                const adjustmentFactor = 5; // 每次調整的基本幅度
+
+                if (lastResult === 'blue') {
+                    // 如果上一次是閒
+                    adjustedBlueProb = Math.max(baseBlueProb - (adjustmentFactor * (blueStreak + 1)), 25);
+                    adjustedRedProb = Math.min(baseRedProb + (adjustmentFactor * (blueStreak + 1)), 65);
+                    adjustedGreenProb = Math.min(baseGreenProb + (blueStreak), 15);
+                } else if (lastResult === 'red') {
+                    // 如果上一次是莊
+                    adjustedRedProb = Math.max(baseRedProb - (adjustmentFactor * (redStreak + 1)), 25);
+                    adjustedBlueProb = Math.min(baseBlueProb + (adjustmentFactor * (redStreak + 1)), 65);
+                    adjustedGreenProb = Math.min(baseGreenProb + (redStreak), 15);
+                } else {
+                    // 如果上一次是和
+                    adjustedGreenProb = Math.max(baseGreenProb - 2, 5);
+                    adjustedBlueProb = baseBlueProb + 1;
+                    adjustedRedProb = baseRedProb + 1;
+                }
+            }
+
+            // 確保三個機率的總和為100%
+            const total = adjustedBlueProb + adjustedRedProb + adjustedGreenProb;
+            adjustedBlueProb = (adjustedBlueProb / total) * 100;
+            adjustedRedProb = (adjustedRedProb / total) * 100;
+            adjustedGreenProb = (adjustedGreenProb / total) * 100;
+
+            // 找出機率最高的選項
+            let prediction = '';
+            if (adjustedBlueProb > adjustedRedProb && adjustedBlueProb > adjustedGreenProb) {
+                prediction = '閒';
+            } else if (adjustedRedProb > adjustedBlueProb && adjustedRedProb > adjustedGreenProb) {
+                prediction = '莊';
+            } else {
+                prediction = '和';
+            }
+
+            // 更新顯示
+            document.getElementById('prediction').textContent = prediction;
+
+            // 強化警告訊息
+            let warningMsg = '⚠️ 重要提醒：\n' +
+                '1. 上方數據僅供參考，不代表真實機率\n' +
+                '2. 每一局都是獨立事件，實際機率維持不變\n' +
+                '3. 這些變化僅是參考指標，不能預測下一局結果';
+
+            // 更新歷史紀錄顯示（保持直豎順序）
+            const historyDisplay = document.getElementById('history-display');
+            historyDisplay.innerHTML = '';
+            
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 10; col++) {
+                    const index = col * 6 + row;
+                    const cell = document.createElement('div');
+                    if (index < history.length) {
+                        cell.className = `history-dot ${history[index]}`;
+                    } else {
+                        cell.className = 'history-cell';
+                    }
+                    historyDisplay.appendChild(cell);
+                }
+            }
+        }
+
+        function resetGame() {
+            history = [];
+            rounds = 0;
+            updateStats();
+        }
+    </script>
+</body>
+</html>
